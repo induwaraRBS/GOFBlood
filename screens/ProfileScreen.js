@@ -1,101 +1,139 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, ImageBackground } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../service/firebase';
 
-const ProfileScreen = () => {
+function ProfileScreen() {
+  const [user, setUser] = useState(null);
+  const route = useRoute();
+  const email = route.params.user.email;
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const q = query(collection(db, 'users'), where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      const userData = querySnapshot.docs.map((doc) => doc.data())[0];
+      setUser(userData);
+    };
+    getUserData();
+  }, [email]);
+
+  if (!user) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
+    <ImageBackground source={require('../assets/drop.jpg')} style={styles.backgroundImage}>
     <View style={styles.container}>
+      <View style={styles.page}>
       <View style={styles.header}>
-        <View style={styles.profileImageContainer}>
-          
-        </View>
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.title}>Blood Donor</Text>
+        <Text style={styles.name}>{user.firstName} {user.LastName}</Text>
+        <Text style={styles.info}>Email:{user.email}</Text>
+        <Text style={styles.info}>NIC: {user.nicNumber}</Text>
       </View>
       <View style={styles.body}>
-        <View style={styles.sectionContainer}>
-          <Ionicons name="ios-information-circle-outline" size={24} color="#333" />
-          <Text style={styles.sectionTitle}>About</Text>
+      <View style={styles.row}>
+          <Text style={styles.label}>First Name:</Text>
+          <Text style={styles.value}>{user.firstName}</Text>
         </View>
-        <View style={styles.sectionContent}>
-          <Text style={styles.sectionText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sed volutpat metus.
-          </Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Last Name:</Text>
+          <Text style={styles.value}>{user.lastName}</Text>
         </View>
-        <View style={styles.sectionContainer}>
-          <Ionicons name="ios-contacts-outline" size={24} color="#333" />
-          <Text style={styles.sectionTitle}>Contact</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Blood Type:</Text>
+          <Text style={styles.value}>{user.bloodGroup}</Text>
         </View>
-        <View style={styles.sectionContent}>
-          <Text style={styles.sectionText}>
-            Email: johndoe@gmail.com
-          </Text>
-          <Text style={styles.sectionText}>
-            Phone: 123-456-7890
-          </Text>
-          <Text style={styles.sectionText}>
-            Address: 123 Main St, Anytown USA
-          </Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Weight:</Text>
+          <Text style={styles.value}>{user.weight}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Height:</Text>
+          <Text style={styles.value}>{user.height}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Date of Birth:</Text>
+          <Text style={styles.value}>{user.dateOfBirth}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Location:</Text>
+          <Text style={styles.value}>{user.location}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Email:</Text>
+          <Text style={styles.value}>{user.email}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Password:</Text>
+          <Text style={styles.value}>{user.password}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>NIC:</Text>
+          <Text style={styles.value}>{user.nicNumber}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact:</Text>
+          <Text style={styles.value}>{user.contact}</Text>
         </View>
       </View>
     </View>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 20,
+    // backgroundColor: '#f2f2f2',
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+  },
+  page:{
+    marginLeft:5,
   },
   header: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
     padding: 20,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
   },
-  profileImageContainer: {
-    borderRadius: 50,
-    overflow: 'hidden',
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    resizeMode: 'cover',
+  body: {
+    marginTop:30,
+    marginLeft:30,
+    padding: 20,
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginBottom: 5,
   },
-  title: {
-    fontSize: 18,
-    color: '#888',
-    marginTop: 10,
+  info: {
+    fontSize: 16,
+    color: '#999',
+    marginBottom: 5,
   },
-  body: {
-    flex: 1,
-    marginTop: 30,
-  },
-  sectionContainer: {
+  row: {
+    marginTop:5,
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    marginBottom: 10,
   },
-  sectionTitle: {
-    marginLeft: 10,
+  label: {
+    flex: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
-  sectionContent: {
-    marginTop: 10,
-  },
-  sectionText: {
-    fontSize: 16,
-    color: '#444',
-    marginBottom: 5,
+  value: {
+    flex: 2,
+    fontSize: 18,
+    color: '#666',
   },
 });
 

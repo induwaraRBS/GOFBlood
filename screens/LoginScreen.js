@@ -1,34 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { auth } from '../service/firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 
-function loginScreen() {
+function LoginScreen({navigate}) {
     const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+    const [password, setPassword] = useState('');
+    const[error,setError]=useState(null);
     const navigation = useNavigation()
 
-  //   useEffect(() => {
-  //       const unsubscribe = auth.onAuthStateChanged(user => {
-  //         if (user) {
-  //           navigation.navigate("Login");
-  //         }
-  //       });
-    
-  //       return () => {
-  //         unsubscribe(); // Unsubscribe or remove any necessary subscription or event listener
-  //       };
-  //     }, []);
-    
+   
 
-  // const handleLogin = () => {
-  //   auth
-  //   .signInWithEmailAndPassword(email,password)
-  //   .then(userCredentials =>{
-  //       const user = userCredentials.user;
-  //       console.log('Logged in With:',user.email);
-  //   })
-  //   .catch(error => alert(error.message))
-  // }
+const handleLogin =async () =>  {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth,
+      email,
+      password
+    );
+    navigation.navigate("Profile", { user: userCredential.user });
+  } catch (err) {
+    setError(err.message);
+    console.log(err);
+  }
+  }
  
  
  
@@ -40,17 +35,17 @@ function loginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            onChangeText={text => setEmail(text)}
+            onChangeText={(text) => setEmail(text)}
             value={email}
           />
           <TextInput
             style={styles.input}
             placeholder="Password"
             secureTextEntry={true}
-            onChangeText={text =>setPassword(text)}
+            onChangeText={(text) => setPassword(text)}
             value={password}
           />
-          <TouchableOpacity style={styles.button}  >
+          <TouchableOpacity style={styles.button} onPress={handleLogin}  >
          
             <Text style={styles.buttonText} >Log in</Text>
           </TouchableOpacity>
@@ -106,4 +101,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default loginScreen;
+export default LoginScreen;
